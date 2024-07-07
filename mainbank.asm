@@ -6960,7 +6960,7 @@ GM_TitleScreen:
 			lda #$10				; $f3f5: a9 10
 			sta $0203			; $f3f7: 8d 03 02
 
-			lda #MusID_JapanTitle
+			lda #MusID_InternTitle
 			jsr PlaySound
 
 			ldx #$20				; $f3ff: a2 20

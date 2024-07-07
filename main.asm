@@ -19,15 +19,6 @@ Debug 	= 1
 ; Text encodings
 			.include "encodings.asm"
 
-PlanetCount		= 8		; Number of playable planets
-CharacterCount	= 12	; Number of characters
-
-PRGBankSize = $4000
-PRGBankCount = 8
-	CheckPowerOfTwo PRGBankCount
-CHRBankCount = 32
-	CheckPowerOfTwo CHRBankCount
-
 ; 	TODO: fix all Goto_CrossBankJump and CrossBankJump using CBJR, same for Main_SwitchBank
 ;	TODO: document palettes and make the use of their ids in the code
 

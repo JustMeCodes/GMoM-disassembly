@@ -1910,7 +1910,6 @@ _pulse1:
 			.byte $18, $18, $18
 			.byte $18, $18, $18
 _pulse1_loop:
-		.warn *
 			CSF_SetVoice $07
 			CSF_Command $8a, $01
 			CSF_SetLoopCount 2

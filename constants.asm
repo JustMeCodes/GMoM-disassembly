@@ -2,6 +2,17 @@
 ;	Constants
 ;-------------------------------------------------------------------------------
     
+PlanetCount		= 8		; Number of playable planets
+CharacterCount	= 12	; Number of characters
+
+PRGBankSize = $4000
+PRGBankCount = 8
+	CheckPowerOfTwo PRGBankCount
+    
+CHRBankSize = $1000
+CHRBankCount = 32
+	CheckPowerOfTwo CHRBankCount
+
 ;	Input
 Input_RAM =		$00
 Btn_A = 		$01

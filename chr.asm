@@ -1,25 +1,22 @@
-
-CHRBankSize = $1000
-
 ;-------------------------------------------------------------------------------
 ;   Needed macros
 ;-------------------------------------------------------------------------------
 
 ;   A function that loads the art and returns it's chr bank id and offset in bank
 ChrArt	.function file
-ChrFile:	.binary file
-	.endf {.bank: ChrFile/CHRBankSize, .tile = (ChrFile % CHRBankSize)/$10}
+	_ChrFile:	.binary file
+	.endf {.bank: _ChrFile/CHRBankSize, .tile = (_ChrFile % CHRBankSize)/$10}
 
-ChrBankStart .function id=-1
-	.if id != -1
-		.cwarn (*/CHRBankSize)!=id, "Bank IDs do not match (expected id - " .. repr(floor(id)) .. ", actual id - " .. repr(*/CHRBankSize) .. ")"
-	.endif
-	.endf id
+ChrBankStart .segment id=-1
+	.cwarn (\id != -1) && (*/CHRBankSize)!=\id, "Bank IDs do not match (expected id - " .. repr(floor(\id)) .. ", actual id - " .. repr(*/CHRBankSize) .. ")"
+	CHR_CurrentBankStart .var *
+	.endsegment \id
 
 ChrBankEnd .function
-	.if Debug
-		.cwarn (* % CHRBankSize)!=0, "CHR Bank " .. repr(bytes(*/CHRBankSize)) .. " is not full"
-	.endif
+	BankID = */CHRBankSize
+
+	.cwarn Debug && (* % CHRBankSize)!=0, "CHR Bank " .. repr(bytes(BankID)) .. " is not full"
+	.cerror * > (CHR_CurrentBankStart+CHRBankSize), "CHR Bank " .. repr(bytes(BankID)) .. " is too big (actual size is " .. repr(*-CHR_CurrentBankStart) .. ", expected size is " .. repr(CHRBankSize) .. ")"
 
 	.align CHRBankSize
 	.endf

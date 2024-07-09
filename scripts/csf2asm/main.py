@@ -35,7 +35,7 @@ music_list = [
     (0xb510, "password"),
     (0xb5ac, "japansolar"),
     (0xb9c6, "varan"),
-    (0xba7e, ""), # not a file, just to mark the end of the last track
+    (0xba85, ""), # not a file, just to mark the end of the last track
 ]
 
 for i in range(len(music_list)-1):

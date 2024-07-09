@@ -1,4 +1,5 @@
-			CSF_HeaderStart _HeaderEnd
+_header_start:
+			CSF_HeaderStart _header_end
 
 			; Pulse 1
 			CSF_HeaderChID $00
@@ -38,63 +39,70 @@
 			CSF_HeaderTempo $80
 			CSF_HeaderNoise _noise
 
-_HeaderEnd
+_header_end:
 
 _pulse1_loop1:
 _pulse1:
-			.byte $2c
-			.byte cDelay($05), $28, $25, $28
-			.byte $2c, $25, $2b, $27
-			.byte $25, $27, $2b, $25
-			.byte $2a, $26, $25, $26
-			.byte $2a, $25, $27, $24
-			.byte $20, $24, $27, $24
-			.byte $28, $25, $20, $25
-			.byte $28, $25, $2a, $27
-			.byte $20, $27, $2a, $27
-			.byte $28, $25, $20, $25
-			.byte $28, $25
+			.byte NE3
+			.byte cDelay($05), NC3, NA2, NC3
+			.byte NE3, NA2, ND3S, NB2
+			.byte NA2, NB2, ND3S, NA2
+			.byte ND3, NA2S, NA2, NA2S
+			.byte ND3, NA2, NB2, NG2S
+			.byte NE2, NG2S, NB2, NG2S
+			.byte NC3, NA2, NE2, NA2
+			.byte NC3, NA2, ND3, NB2
+			.byte NE2, NB2, ND3, NB2
+			.byte NC3, NA2, NE2, NA2
+			.byte NC3, NA2
 			CSF_Jump _pulse1_loop1
+
 _pulse2:
 			.byte $00
 			.byte cDelay($07)
 _pulse2_loop1:
-			.byte $2c
-			.byte cDelay($05), $28, $25, $28
-			.byte $2c, $25, $2b, $27
-			.byte $25, $27, $2b, $25
-			.byte $2a, $26, $25, $26
-			.byte $2a, $25, $27, $24
-			.byte $20, $24, $27, $24
-			.byte $28, $25, $20, $25
-			.byte $28, $25, $2a, $27
-			.byte $20, $27, $2a, $27
-			.byte $28, $25, $20, $25
-			.byte $28, $25
+			.byte NE3
+			.byte cDelay($05), NC3, NA2, NC3
+			.byte NE3, NA2, ND3S, NB2
+			.byte NA2, NB2, ND3S, NA2
+			.byte ND3, NA2S, NA2, NA2S
+			.byte ND3, NA2, NB2, NG2S
+			.byte NE2, NG2S, NB2, NG2S
+			.byte NC3, NA2, NE2, NA2
+			.byte NC3, NA2, ND3, NB2
+			.byte NE2, NB2, ND3, NB2
+			.byte NC3, NA2, NE2, NA2
+			.byte NC3, NA2
 			CSF_Jump _pulse2_loop1
+
 _triangle_loop2:
 _triangle:
 			CSF_SetLoopCount $07
 _triangle_loop1:
-			.byte $19
-			.byte cDelay($05), $19, $19, $19
-			.byte $19, $19
-			.byte $9c ; Unknown command
-			.byte $07, $7e, $ba
+			.byte NA1
+			.byte cDelay($05), NA1, NA1, NA1
+			.byte NA1, NA1
+			CSF_Cmd9C _triangle_cmd9c_1, $07
 			CSF_Loop _triangle_loop1
+
 			CSF_Jump _triangle_loop2
+
 _noise:
 _noise_loop1:
-			CSF_Command $8a, $fb
+			CSF_Command $8a, $fb ; Undocumented command
 			.byte $c0
 			.byte cDelay($03), $c0, $c0
-			CSF_Command $8a, $05
+			CSF_Command $8a, $05 ; Undocumented command
 			.byte $c0
-			CSF_Command $8a, $fb
+			CSF_Command $8a, $fb ; Undocumented command
 			.byte $c0, $c0, $c0, $c0
-			CSF_Command $8a, $05
+			CSF_Command $8a, $05 ; Undocumented command
 			.byte $c0
-			CSF_Command $8a, $fb
+			CSF_Command $8a, $fb ; Undocumented command
 			.byte $c0, $c0, $c0
-			CSF_Command $8a, $05
+			CSF_Command $8a, $05 ; Undocumented command
 			CSF_Jump _noise_loop1
+_triangle_cmd9c_1:
+			.byte $00, $00
+			.byte cDelay($1b), $00, $00, $00
+			.byte $05

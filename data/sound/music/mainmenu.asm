@@ -1,4 +1,5 @@
-			CSF_HeaderStart _HeaderEnd
+_header_start:
+			CSF_HeaderStart _header_end
 
 			; Pulse 1
 			CSF_HeaderChID $00
@@ -38,24 +39,25 @@
 			CSF_HeaderTempo $77
 			CSF_HeaderNoise _noise
 
-_HeaderEnd
+_header_end:
 
 _pulse1:
-			.byte $2c
-			.byte cDelay($03), $2e, $2f, $31
+			.byte NE3
+			.byte cDelay($03), NF3S, NG3, NA3
 			.byte cDelay($00), $63
-			.byte $8b ; Unknown command
-			.byte $2f
+			CSF_PlaySound $2f ; TODO: that's a sound id, turn it into a label later
 			.byte cDelay($00), $0c
-			CSF_Stop 
+			CSF_Stop
+
 _pulse2:
-			.byte $89 ; Unknown command
-			.byte $05, $2c
-			.byte cDelay($03), $2e, $2f, $2c
-			.byte cDelay($00), $0c, $2e
-			.byte cDelay($07), $2f, $36
+			CSF_Command $89, $05 ; Undocumented command
+			.byte NE3
+			.byte cDelay($03), NF3S, NG3, NE3
+			.byte cDelay($00), $0c, NF3S
+			.byte cDelay($07), NG3, ND4
 			.byte cDelay($00), $51
-			CSF_Stop 
+			CSF_Stop
+
 _triangle:
 			.byte $14
 			.byte cDelay($03), $00, $14, $14
@@ -66,31 +68,31 @@ _triangle:
 			.byte $00, $14, $00, $14
 			.byte $14, $00, $14, $14
 			.byte $00, $14, $00, $14
-			.byte $91 ; Unknown command
-			.byte $01
-			CSF_Stop 
+			CSF_Command $91, $01 ; Undocumented command
+			CSF_Stop
+
 _noise:
-			.byte $8c ; Unknown command
+			CSF_Nop
 			.byte $c0
 			.byte cDelay($03), $00, $c0, $c0
-			.byte $8c ; Unknown command
+			CSF_Nop
 			.byte $c0
-			.byte $8c ; Unknown command
+			CSF_Nop
 			.byte $00, $c0, $c0, $c0
 			.byte $00, $c0, $c0
-			.byte $8c ; Unknown command
+			CSF_Nop
 			.byte $c0
-			.byte $8c ; Unknown command
+			CSF_Nop
 			.byte $00, $c0, $c0, $c0
 			.byte $00, $c0, $c0
-			.byte $8c ; Unknown command
+			CSF_Nop
 			.byte $c0
-			.byte $8c ; Unknown command
+			CSF_Nop
 			.byte $00, $c0, $c0, $c0
 			.byte $00, $c0, $c0
-			.byte $8c ; Unknown command
+			CSF_Nop
 			.byte $c0, $00
-			.byte $8c ; Unknown command
+			CSF_Nop
 			.byte $c0, $c0, $00
 			.byte cDelay($0e)
 			CSF_Stop

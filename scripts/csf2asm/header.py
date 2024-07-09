@@ -70,10 +70,11 @@ def parse_header(file: BufferedReader, music_address: int):
     global channel_labels
     channel_labels = set()
     channel_count = file.read(1)[0]
-    header_end = Address(channel_count * 10 + 1 + music_address, "_HeaderEnd")
-    result = indent + "CSF_HeaderStart " + header_end.name + '\n\n'
+    header_end = Address(channel_count * 10 + 1 + music_address, "_header_end")
+    result = "_header_start:\n"
+    result += indent + "CSF_HeaderStart " + header_end.name + '\n\n'
 
     for i in range(channel_count):
         result += parse_channel_header(file) + '\n'
-    result += header_end.name + '\n'
+    result += header_end.name + ':\n'
     return result

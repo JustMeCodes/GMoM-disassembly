@@ -8,121 +8,7 @@
 
 Sound_Bank	=	LastBank
 
-;-------------------------------------------------------------------------------
-;	CSF - Compile Sound Format
-;-------------------------------------------------------------------------------
-
-;	Track header
-
-CSF_HeaderStart .function end_label
-			.byte (end_label-*-1)/10
-		.endf
-
-CSF_HeaderChID .segment id
-HCSF_CHANNEL_ID .var \id
-		.endsegment
-
-CSF_HeaderInitLoop .segment loop_count
-HCSF_CHANNEL_LOOP .var \loop_count
-		.endsegment
-
-CSF_HeaderInitVoice .segment voice
-HCSF_INIT_VOICE .var \voice
-		.endsegment
-
-CSF_HeaderPitch .segment pitch
-HCSF_PITCH .var \pitch
-		.endsegment
-
-CSF_HeaderTempo .segment tempo
-HCSF_TEMPO .var \tempo
-		.endsegment
-
-CSF_HeaderPulseSetup .segment duty, env_loop, cvolume, volume
-			.cerror \duty > 3 || \env_loop > 1 || \cvolume > 1 || \volume > 15, "Invalid value"
-HCSF_PULSE_SETUP .var \duty << 6 | \env_loop << 5 | \cvolume << 4 | \volume
-		.endsegment
-
-CSF_HeaderPulseSweep .segment enable, period, negate, shift_count
-			.cerror \enable > 1 || \period > 7 || \negate > 1 || \shift_count > 7, "Invalid value"
-HCSF_PULSE_SWEEP .var \enable << 7 | \period << 4 | \negate << 3 | \shift_count
-		.endsegment
-
-CSF_HeaderPulse .segment id, address
-			.cerror \id < 1 || \id > 2, "Invalid pulse channel"
-			.byte HCSF_CHANNEL_ID, HCSF_CHANNEL_LOOP
-			.byte HCSF_PULSE_SETUP, HCSF_INIT_VOICE
-			.byte HCSF_PULSE_SWEEP
-			.byte HCSF_PITCH, HCSF_TEMPO, \id-1
-			.addr \address
-		.endsegment
-
-CSF_HeaderTriSetup .segment c_flag, linear_load, unk
-			.cerror \c_flag > 1 || \linear_load > $7f, "Invalid value"
-HCSF_TRI_SETUP .var \c_flag << 7 | \linear_load
-HCSF_TRI_UNK .var \unk
-		.endsegment
-
-CSF_HeaderTriangle .segment address
-			.byte HCSF_CHANNEL_ID, HCSF_CHANNEL_LOOP
-			.byte HCSF_TRI_SETUP, HCSF_INIT_VOICE
-			.byte HCSF_TRI_UNK
-			.byte HCSF_PITCH, HCSF_TEMPO, $02
-			.addr \address
-		.endsegment
-
-CSF_HeaderNoiseSetup .segment env_loop, cvolume, volume, unk
-			.cerror \env_loop > 1 || \cvolume > 1 || \volume > $f, "Invalid value"
-HCSF_NOISE_SETUP .var \env_loop << 5 | \cvolume << 4 | \volume
-HCSF_NOISE_UNK .var \unk
-		.endsegment
-
-CSF_HeaderNoise .segment address
-			.byte HCSF_CHANNEL_ID, HCSF_CHANNEL_LOOP
-			.byte HCSF_NOISE_SETUP, HCSF_INIT_VOICE
-			.byte HCSF_NOISE_UNK
-			.byte HCSF_PITCH, HCSF_TEMPO, $03
-			.addr \address
-		.endsegment
-
-;	Track commands
-
-cDelay	.sfunction d, $e0 | d
-
-CSF_Jump .function address
-			.byte $80
-			.addr address
-		.endf
-
-CSF_SetLoopCount .function count, unk=$70
-			.byte $8d, unk, count
-		.endf
-
-CSF_Loop .function address, unk=$70
-			.byte $81, unk
-			.addr address
-		.endf
-
-CSF_Stop .macro
-			.byte $82
-		.endm
-
-CSF_SetVoice .function id
-			.byte $88, id
-		.endf
-		
-CSF_Cmd9C .function address, y
-			.byte $9с, y
-			.addr address
-		.endf
-
-CSF_Command .function id, value
-			.byte id, value
-		.endf
-
-CSF_CommandFiller .function id, value
-			.byte id, $70, value
-		.endf
+			.include "csf_macros.asm"
 
 ;-------------------------------------------------------------------------------
 ;	Cross bank jump labels
@@ -519,7 +405,7 @@ Sound_ReadCommand:
 			TableInsert Sound_82df	; $89
 			TableInsert Sound_82ed ; $8A
 			TableInsert Sound_PlaySound ; $8B
-			TableInsert Sound_8415 ; $8C
+			TableInsert Sound_CmdNop ; $8C
 			TableInsert Sound_CmdSetLoopCount ; $8D 
 			TableInsert Sound_83bd ; $8E
 			TableInsert Sound_83c1 ; $8F
@@ -815,7 +701,8 @@ Sound_840d:
 			lda $031c,x		; $840d: bd 1c 03
 			eor #$10				; $8410: 49 10
 			sta $031c,x		; $8412: 9d 1c 03
-Sound_8415:
+; ...why was this done?
+Sound_CmdNop:
 			dey				; $8415: 88
 			rts				; $8416: 60
 
@@ -1806,32 +1693,32 @@ Sound_Sub_MusicFadeOut:
 MusID_JapanTitle:	TableInsert Music_JapanTitle	; (unused in international ROM)
 MusID_TheEarth:		TableInsert Music_TheEarth
 MusID_MainMenu:		TableInsert Music_MainMenu
-MusID_GameOver:		TableInsert $9202
-MusID_Death:		TableInsert $932b
-MusID_Unused1:		TableInsert $93eb	; (unused)
-MusId_Unused2:		TableInsert $948a	; (unused)
-MusID_InternTitle:	TableInsert $9510
+MusID_GameOver:		TableInsert Music_GameOver
+MusID_Death:		TableInsert Music_Death
+MusID_Unused1:		TableInsert Music_Unused1	; (unused)
+MusId_Unused2:		TableInsert Music_Unused2	; (unused)
+MusID_InternTitle:	TableInsert Music_InternTitle
 MusID_PlanetX	=	MusID_InternTitle
-MusID_Mars:			TableInsert $999d
-MusID_Neptune:		TableInsert $9c16
-MusID_Saturn:		TableInsert $9e2a
-MusID_Jupiter:		TableInsert $a05a
-MusID_Pluto:		TableInsert $a28f
-MusID_Uranus:		TableInsert $a458
-MusID_Moguera:		TableInsert $a62b
+MusID_Mars:			TableInsert Music_Mars
+MusID_Neptune:		TableInsert Music_Neptune
+MusID_Saturn:		TableInsert Music_Saturn
+MusID_Jupiter:		TableInsert Music_Jupiter
+MusID_Pluto:		TableInsert Music_Pluto
+MusID_Uranus:		TableInsert Music_Uranus
+MusID_Moguera:		TableInsert Music_Moguera
 MusID_Baragon	=	MusID_Moguera
-MusID_Hedorah:		TableInsert $a6ec
-MusID_Gigan:		TableInsert $a906
-MusID_MechaGodzilla:	TableInsert $ab76
-MusID_Gezora:		TableInsert $acab
-MusID_Ghidorah:		TableInsert $ae02
-MusID_BossDefeat:	TableInsert $af44
-MusID_Unused3:		TableInsert $b015	; (unused)
-MusID_Credits:		TableInsert $b190
-MusID_Unused4:		TableInsert $b3a7	; Gh1d0ra (unused)
-MusID_PasswordGame:	TableInsert $b510
-MusID_JapanSolar:	TableInsert $b5ac	; Japan Solar System (unused in international ROM)
-MusID_Varan:		TableInsert $b9c6
+MusID_Hedorah:		TableInsert Music_Hedorah
+MusID_Gigan:		TableInsert Music_Gigan
+MusID_MechaGodzilla:	TableInsert Music_MechaGodzilla
+MusID_Gezora:		TableInsert Music_Gezora
+MusID_Ghidorah:		TableInsert Music_Ghidorah
+MusID_BossDefeat:	TableInsert Music_BossDefeat
+MusID_Unused3:		TableInsert Music_Unused3	; (unused)
+MusID_Credits:		TableInsert Music_Credits
+MusID_Unused4:		TableInsert Music_Unused4	; Gh1d0ra (unused)
+MusID_PasswordGame:	TableInsert Music_PasswordGame
+MusID_JapanSolar:	TableInsert Music_JapanSolar	; Japan Solar System (unused in international ROM)
+MusID_Varan:		TableInsert Music_Varan
 
 	; TODO: document sounds
 SFXID_Start:		TableInsert $ba85
@@ -1863,64 +1750,35 @@ SFXID_AnguirusRoar:	TableInsert $bd10
 
 Sound_SoundTable:	.addr CurrentTable
 
-Music_JapanTitle:
-			.include "data/sound/music/japantitle.asm"
-Music_TheEarth:
-			.include "data/sound/music/theearth.asm"
-Music_MainMenu:
-			.include "data/sound/music/mainmenu.asm"
-Music_GameOver:
-			.include "data/sound/music/gameover.asm"
-Music_Death:
-			.include "data/sound/music/death.asm"
-Music_Unused1:
-			.include "data/sound/music/unused1.asm"
-Music_Unused2:
-			.include "data/sound/music/unused2.asm"
-Music_InternTitle: ; Needs checking for more commands with address arguments
-			.include "data/sound/music/interntitle_planetx.asm"
-Music_Mars:
-			.include "data/sound/music/mars.asm"
-Music_Neptune:
-			.include "data/sound/music/neptune.asm"
-Music_Saturn:
-			.include "data/sound/music/saturn.asm"
-Music_Jupiter:
-			.include "data/sound/music/jupiter.asm"
-Music_Pluto:
-			.include "data/sound/music/pluto.asm"
-Music_Uranus:
-			.include "data/sound/music/uranus.asm"
-Music_Moguera:
-			.include "data/sound/music/moguera_baragon.asm"
-Music_Hedorah:
-			.include "data/sound/music/hedorah.asm"
-Music_Gigan:
-			.include "data/sound/music/gigan.asm"
-Music_MechaGodzilla:
-			.include "data/sound/music/mechagodzilla.asm"
-Music_Gezora:
-			.include "data/sound/music/gezora.asm"
-Music_Ghidorah:
-			.include "data/sound/music/ghidorah.asm"
-Music_BossDefeat:
-			.include "data/sound/music/bossdefeat.asm"
-Music_Unused3:
-			.include "data/sound/music/unused3.asm"
-Music_Credits:
-			.include "data/sound/music/credits.asm"
-Music_Unused4:
-			.include "data/sound/music/unused4_gh1d0ra.asm"
-Music_PasswordGame:
-			.include "data/sound/music/password.asm"
-Music_JapanSolar:
-			.include "data/sound/music/japansolar.asm"
-Music_Varan:
-			.include "data/sound/music/varan.asm"
+Music_JapanTitle:	.binclude "data/sound/music/japantitle.asm"
+Music_TheEarth:		.binclude "data/sound/music/theearth.asm"
+Music_MainMenu:		.binclude "data/sound/music/mainmenu.asm"
+Music_GameOver:		.binclude "data/sound/music/gameover.asm"
+Music_Death:		.binclude "data/sound/music/death.asm"
+Music_Unused1:		.binclude "data/sound/music/unused1.asm"
+Music_Unused2:		.binclude "data/sound/music/unused2.asm"
+Music_InternTitle:	.binclude "data/sound/music/interntitle_planetx.asm"
+Music_Mars:			.binclude "data/sound/music/mars.asm"
+Music_Neptune:		.binclude "data/sound/music/neptune.asm"
+Music_Saturn:		.binclude "data/sound/music/saturn.asm"
+Music_Jupiter:		.binclude "data/sound/music/jupiter.asm"
+Music_Pluto:		.binclude "data/sound/music/pluto.asm"
+Music_Uranus:		.binclude "data/sound/music/uranus.asm"
+Music_Moguera:		.binclude "data/sound/music/moguera_baragon.asm"
+Music_Hedorah:		.binclude "data/sound/music/hedorah.asm"
+Music_Gigan:		.binclude "data/sound/music/gigan.asm"
+Music_MechaGodzilla:.binclude "data/sound/music/mechagodzilla.asm"
+Music_Gezora:		.binclude "data/sound/music/gezora.asm"
+Music_Ghidorah:		.binclude "data/sound/music/ghidorah.asm"
+Music_BossDefeat:	.binclude "data/sound/music/bossdefeat.asm"
+Music_Unused3:		.binclude "data/sound/music/unused3.asm"
+Music_Credits:		.binclude "data/sound/music/credits.asm"
+Music_Unused4:		.binclude "data/sound/music/unused4_gh1d0ra.asm"
+Music_PasswordGame:	.binclude "data/sound/music/password.asm"
+Music_JapanSolar:	.binclude "data/sound/music/japansolar.asm"
+Music_Varan:		.binclude "data/sound/music/varan.asm"
 
-			.byte $00, $00	; $ba7e: 00 00	 Data
-			.byte $fb, $00, $00, $00	; $ba80: fb 00 00 00	 Data
-			.byte $05, $04, $05, $01	; $ba84: 05 04 05 01	 Data
+			.byte $04, $05, $01	; $ba85: 04 05 01	 Data
 			.byte $3b, $10, $44, $f4	; $ba88: 3b 10 44 f4	 Data
 			.byte $aa, $01, $c6, $ba	; $ba8c: aa 01 c6 ba	 Data
 			.byte $04, $01, $37, $10	; $ba90: 04 01 37 10	 Data
